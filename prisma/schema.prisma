@@ -1,0 +1,171 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider="postgres"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       String @id @default(cuid())
+  clerkId  String @unique // Clerk user ID
+  email    String @unique
+  name     String?
+  imageUrl String?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // User group memberships
+  memberships UserGroupMember[]
+  
+  // Groups created by this user
+  ownedGroups UserGroup[] @relation("GroupOwner")
+
+  @@map("users")
+}
+
+model UserGroup {
+  id          String @id @default(cuid())
+  name        String
+  description String?
+  
+  // Group owner (creator)
+  ownerId String
+  owner   User   @relation("GroupOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Group members
+  members UserGroupMember[]
+  
+  // Events belonging to this group
+  events BabyEvent[]
+
+  @@map("user_groups")
+}
+
+model UserGroupMember {
+  id String @id @default(cuid())
+  
+  // Relations
+  userId  String
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  groupId String
+  group   UserGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  
+  // Permissions
+  canRead   Boolean @default(true)
+  canAdd    Boolean @default(false)
+  canEdit   Boolean @default(false)
+  canDelete Boolean @default(false)
+  canShare  Boolean @default(false) // Can invite others to the group
+  
+  // Role for easier management
+  role String @default("viewer") // viewer, editor, admin
+  
+  joinedAt DateTime @default(now())
+
+  @@unique([userId, groupId])
+  @@map("user_group_members")
+}
+
+model BabyEvent {
+  id        String   @id @default(cuid())
+  date      DateTime
+  time      String   // HH:mm format
+  type      String   // EventType enum as string
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Group ownership
+  groupId String
+  group   UserGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  // Polymorphic relations - only one should exist per event
+  feedingEvent FeedingEvent?
+  diaperEvent  DiaperEvent?
+  sleepEvent   SleepEvent?
+  otherEvent   OtherEvent?
+
+  // Images relation
+  images EventImage[]
+
+  @@map("baby_events")
+}
+
+model FeedingEvent {
+  id          String  @id @default(cuid())
+  eventId     String  @unique
+  feedingType String  // FeedingType enum as string
+  amount      Int?    // ml for bottles
+  duration    Int?    // minutes for breastfeeding
+  side        String? // 'left', 'right', 'both'
+
+  event BabyEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@map("feeding_events")
+}
+
+model DiaperEvent {
+  id     String @id @default(cuid())
+  eventId String @unique
+  wet    Int    // number of wet diapers
+  dirty  Int    // number of dirty diapers
+  
+  // Diaper details as JSON
+  color       String?
+  texture     String?
+  consistency String?
+
+  event BabyEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@map("diaper_events")
+}
+
+model SleepEvent {
+  id        String  @id @default(cuid())
+  eventId   String  @unique
+  duration  Int?    // minutes
+  sleepType String  // SleepType enum as string
+  startTime String? // HH:mm format
+  endTime   String? // HH:mm format
+
+  event BabyEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@map("sleep_events")
+}
+
+model OtherEvent {
+  id          String @id @default(cuid())
+  eventId     String @unique
+  eventType   String // OtherEventType enum as string
+  description String
+
+  event BabyEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@map("other_events")
+}
+
+model EventImage {
+  id            String   @id @default(cuid())
+  eventId       String
+  url           String   // UploadThing URL
+  uploadthingKey String  // UploadThing file key for deletion
+  filename      String
+  fileSize      Int
+  caption       String?
+  tags          String?  // JSON array as string
+  uploadedAt    DateTime @default(now())
+
+  event BabyEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@map("event_images")
+}

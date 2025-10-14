@@ -1,36 +1,138 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Baby Tracker
+
+A modern Next.js application for tracking your baby's daily activities including feeding, diaper changes, sleep patterns, and other important events with photo support.
+
+## Features
+
+- 🍼 **Feeding Tracking**: Monitor breastfeeding, expressed breast milk, formula feeding with amounts and duration
+- 👶 **Diaper Changes**: Track wet and dirty diapers with detailed descriptions
+- 😴 **Sleep Monitoring**: Log naps and night sleep periods
+- 📸 **Photo Support**: Attach multiple photos to any event using UploadThing
+- 📊 **Dashboard**: View daily statistics and recent activity
+- 📱 **Mobile-First**: Responsive design optimized for mobile use
+- 💾 **Data Persistence**: PostgreSQL database with Prisma ORM
+
+## Tech Stack
+
+- **Framework**: Next.js 15 with App Router
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **Database**: PostgreSQL with Prisma ORM
+- **File Uploads**: UploadThing
+- **Icons**: Lucide React
+- **Date Handling**: date-fns
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
+- Node.js 18+ 
+- npm or yarn
+
+### Installation
+
+1. Clone the repository:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone <your-repo-url>
+cd baby-tracker
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies:
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Set up environment variables:
+```bash
+cp .env.example .env.local
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. Configure your UploadThing keys in `.env.local`:
+   - Sign up at [UploadThing](https://uploadthing.com)
+   - Create a new app and get your keys
+   - Add them to your `.env.local` file:
+```env
+UPLOADTHING_SECRET=your_secret_here
+UPLOADTHING_APP_ID=your_app_id_here
+```
 
-## Learn More
+5. Set up the database:
+```bash
+npx prisma generate
+npx prisma db push
+```
 
-To learn more about Next.js, take a look at the following resources:
+6. Run the development server:
+```bash
+npm run dev
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Open [http://localhost:3000](http://localhost:3000) to view the application.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Usage
 
-## Deploy on Vercel
+### Adding Events
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. Navigate to the "Add Event" page
+2. Choose the type of event (Feeding, Diaper Change, Sleep, Other)
+3. Fill in the required details
+4. Optionally add photos
+5. Save the event
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Dashboard
+
+View your baby's daily statistics and recent activity on the main dashboard.
+
+## Database Schema
+
+The application uses Prisma with PostgreSQL for data persistence. Key models include:
+
+- `BabyEvent`: Base event model
+- `FeedingEvent`: Feeding-specific data
+- `DiaperEvent`: Diaper change data  
+- `SleepEvent`: Sleep tracking data
+- `OtherEvent`: Other activities
+- `EventImage`: Photo attachments
+
+## Scripts
+
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run start` - Start production server
+- `npm run lint` - Run ESLint
+- `npx prisma studio` - Open Prisma database browser
+
+## Deployment
+
+### Vercel (Recommended)
+
+1. Push your code to GitHub
+2. Connect your repository to Vercel
+3. Set environment variables in Vercel dashboard:
+   - `UPLOADTHING_SECRET`
+   - `UPLOADTHING_APP_ID`
+   - `DATABASE_URL` (use Vercel Postgres for production)
+   - `NEXT_PUBLIC_APP_URL` (auto-set by Vercel)
+4. Deploy
+
+**Note:** The application is configured to use PostgreSQL. For production on Vercel, use Vercel Postgres for optimal performance.
+
+### Other Platforms
+
+The app can be deployed to any platform that supports Next.js applications. Make sure to:
+
+1. Set all required environment variables
+2. Run database migrations: `npx prisma db push`
+3. Build the application: `npm run build`
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
+
+## License
+
+MIT License - see LICENSE file for details.
