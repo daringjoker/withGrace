@@ -1,4 +1,4 @@
-import { BabyEvent, BabyEventWithRelations, EventType } from '@/types/baby-events';
+import { BabyEventWithRelations, EventType, ImageData } from '@/types/baby-events';
 
 // Compatibility interface to match what the timeline expects
 export interface TimelineEvent {
@@ -53,9 +53,9 @@ export function convertToTimelineEvent(babyEvent: BabyEventWithRelations): Timel
 
   // Convert images format
   if (babyEvent.images) {
-    base.images = babyEvent.images.map((img: any) => ({
+    base.images = babyEvent.images.map((img: ImageData) => ({
       url: img.url,
-      filename: img.filename || img.name || 'image', // Use filename from Prisma, fallback to name
+      filename: img.name || 'image', // Use name from ImageData type
     }));
   }
 

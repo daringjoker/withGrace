@@ -221,7 +221,7 @@ export default function Home() {
       <div className="flex items-center justify-center min-h-[50vh]">
         <div className="text-center">
           <div className="text-4xl mb-4">👶</div>
-          <div className="text-lg text-gray-600 mb-2">Setting up your baby's journey...</div>
+          <div className="text-lg text-gray-600 mb-2">Setting up your baby&apos;s journey...</div>
           <div className="animate-pulse text-sm text-gray-400">Just a moment! ✨</div>
         </div>
       </div>

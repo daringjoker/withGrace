@@ -95,7 +95,7 @@ export default function SetupPage() {
             Welcome, {user.firstName}! 🎉
           </h1>
           <p className="text-gray-600 text-lg">
-            Let's get you set up to start tracking your baby's journey
+            Let&apos;s get you set up to start tracking your baby&apos;s journey
           </p>
         </div>
 
@@ -112,7 +112,7 @@ export default function SetupPage() {
                   Create New Family Group
                 </h3>
                 <p className="text-gray-600 mb-4">
-                  Start a new group for your family to track your baby's activities together
+                  Start a new group for your family to track your baby&apos;s activities together
                 </p>
                 <Button variant="outline" className="w-full">
                   Create Group
@@ -131,7 +131,7 @@ export default function SetupPage() {
                   Join Existing Group
                 </h3>
                 <p className="text-gray-600 mb-4">
-                  Join a family group that's already been created by someone else
+                  Join a family group that&apos;s already been created by someone else
                 </p>
                 <Button variant="outline" className="w-full">
                   Join Group

@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { BabyEvent, BabyEventWithRelations } from '@/types/baby-events';
+import { BabyEventWithRelations } from '@/types/baby-events';
 
 // Types for API responses
 export interface EventsResponse {
@@ -21,10 +21,29 @@ export interface CreateEventData {
   time: string;
   date: string;
   notes?: string;
-  feedingEvent?: any;
-  diaperEvent?: any;
-  sleepEvent?: any;
-  otherEvent?: any;
+  feedingEvent?: {
+    feedingType: string;
+    amount?: number;
+    duration?: number;
+    side?: string;
+  };
+  diaperEvent?: {
+    wet: number;
+    dirty: number;
+    color?: string;
+    texture?: string;
+    consistency?: string;
+  };
+  sleepEvent?: {
+    duration?: number;
+    sleepType: string;
+    startTime?: string;
+    endTime?: string;
+  };
+  otherEvent?: {
+    eventType: string;
+    description: string;
+  };
   images?: Array<{ url: string; filename: string }>;
 }
 
@@ -47,6 +66,7 @@ export const eventsApi = createApi({
         });
         return `?${params}`;
       },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       transformResponse: (response: any) => {
         // Handle the API response format { success: true, data: { events: [...] } }
         if (response && response.success && response.data) {
@@ -88,6 +108,7 @@ export const eventsApi = createApi({
       // Optimistically update the cache and handle offline scenarios
       async onQueryStarted(eventData, { dispatch, queryFulfilled, getState }) {
         // Check if we're offline
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const currentState = getState() as any;
         const isOnline = currentState.cache.syncStatus.isOnline;
         
@@ -104,9 +125,31 @@ export const eventsApi = createApi({
         const optimisticEvent: BabyEventWithRelations = {
           ...eventData,
           id: tempId,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           type: eventData.type as any, // Type assertion for compatibility
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
+          // Add proper relation objects with required fields
+          feedingEvent: eventData.feedingEvent ? {
+            id: `temp-feeding-${tempId}`,
+            eventId: tempId,
+            ...eventData.feedingEvent
+          } : undefined,
+          diaperEvent: eventData.diaperEvent ? {
+            id: `temp-diaper-${tempId}`,
+            eventId: tempId,
+            ...eventData.diaperEvent
+          } : undefined,
+          sleepEvent: eventData.sleepEvent ? {
+            id: `temp-sleep-${tempId}`,
+            eventId: tempId,
+            ...eventData.sleepEvent
+          } : undefined,
+          otherEvent: eventData.otherEvent ? {
+            id: `temp-other-${tempId}`,
+            eventId: tempId,
+            ...eventData.otherEvent
+          } : undefined,
           // Ensure images have proper ImageData structure
           images: eventData.images?.map((img, index) => ({
             id: `temp-img-${Date.now()}-${index}`,
@@ -121,11 +164,13 @@ export const eventsApi = createApi({
         };
 
         // Find all active events queries and update them optimistically
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const stateSnapshot = getState() as any;
         const eventsQueries = Object.keys(stateSnapshot.eventsApi.queries)
           .filter((key) => key.startsWith('getEvents'))
           .map((key) => stateSnapshot.eventsApi.queries[key]);
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const patchResults: any[] = [];
 
         eventsQueries.forEach((queryState) => {
@@ -183,6 +228,7 @@ export const eventsApi = createApi({
         );
 
         // Optimistically update events lists
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const listPatchResults: any[] = [];
         // This would need to iterate through active getEvents queries
         // For now, we'll invalidate to keep it simple
@@ -208,11 +254,13 @@ export const eventsApi = createApi({
       }),
       async onQueryStarted(id, { dispatch, queryFulfilled, getState }) {
         // Find all active events queries and remove the event optimistically
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const state = getState() as any;
         const eventsQueries = Object.keys(state.eventsApi.queries)
           .filter((key) => key.startsWith('getEvents'))
           .map((key) => state.eventsApi.queries[key]);
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const patchResults: any[] = [];
 
         eventsQueries.forEach((queryState) => {

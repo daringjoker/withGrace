@@ -9,7 +9,7 @@ export default function SignUpPage() {
             Join Our Family! 🌟
           </h1>
           <p className="text-gray-600">
-            Start capturing your baby's beautiful journey together
+            Start capturing your baby&apos;s beautiful journey together
           </p>
         </div>
         <SignUp 

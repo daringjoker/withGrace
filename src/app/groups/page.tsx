@@ -142,7 +142,7 @@ export default function GroupsPage() {
     setMembersDialog({ isOpen: true, group, members });
   };
 
-  const handleUpdateMember = async (memberId: string, role: string, permissions: any) => {
+  const handleUpdateMember = async (memberId: string, role: string, permissions: { canRead: boolean; canAdd: boolean; canEdit: boolean; canDelete: boolean; canShare: boolean }) => {
     if (!membersDialog.group) return;
 
     try {
@@ -425,7 +425,7 @@ export default function GroupsPage() {
           <div className="bg-white rounded-lg p-6 max-w-md w-full">
             <div className="flex justify-between items-start mb-4">
               <h3 className="text-lg font-semibold text-gray-900">
-                Share "{shareDialog.group.name}"
+                Share &quot;{shareDialog.group.name}&quot;
               </h3>
               <button
                 onClick={() => setShareDialog({ isOpen: false })}
@@ -491,7 +491,7 @@ export default function GroupsPage() {
           <div className="bg-white rounded-lg p-6 max-w-lg w-full">
             <div className="flex justify-between items-start mb-4">
               <h3 className="text-lg font-semibold text-gray-900">
-                Manage "{manageDialog.group.name}"
+                Manage &quot;{manageDialog.group.name}&quot;
               </h3>
               <button
                 onClick={() => setManageDialog({ isOpen: false })}
@@ -605,7 +605,7 @@ export default function GroupsPage() {
           <div className="bg-white rounded-lg p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-start mb-4">
               <h3 className="text-lg font-semibold text-gray-900">
-                Manage Members - "{membersDialog.group.name}"
+                Manage Members - &quot;{membersDialog.group.name}&quot;
               </h3>
               <button
                 onClick={() => setMembersDialog({ isOpen: false, members: [] })}

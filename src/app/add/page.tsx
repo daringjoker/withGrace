@@ -149,7 +149,7 @@ export default function AddEventPage() {
           No Add Permission
         </h1>
         <p className="text-gray-600 max-w-md mx-auto">
-          You don't have permission to add events to "{activeGroup.name}". 
+          You don&apos;t have permission to add events to &quot;{activeGroup.name}&quot;. 
           Contact the group admin to update your permissions.
         </p>
         <Link href="/groups">

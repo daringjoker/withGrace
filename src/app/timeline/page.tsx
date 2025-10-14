@@ -468,7 +468,7 @@ export default function TimelinePage() {
           No Read Permission
         </h1>
         <p className="text-gray-600 max-w-md mx-auto">
-          You don't have permission to view events in "{activeGroup.name}". 
+          You don&apos;t have permission to view events in &quot;{activeGroup.name}&quot;. 
           Contact the group admin to update your permissions.
         </p>
         <Link href="/groups">

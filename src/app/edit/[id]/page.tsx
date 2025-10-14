@@ -322,7 +322,7 @@ export default function EditEventPage() {
             <div className="text-6xl">🔒</div>
             <h1 className="text-xl font-bold text-gray-900">No Edit Permission</h1>
             <p className="text-gray-600">
-              You don't have permission to edit events in "{activeGroup.name}".
+              You don&apos;t have permission to edit events in &quot;{activeGroup.name}&quot;.
             </p>
             <Link href="/groups">
               <Button className="inline-flex items-center">

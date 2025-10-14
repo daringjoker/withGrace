@@ -9,7 +9,7 @@ export default function SignInPage() {
             Welcome Back! 👶
           </h1>
           <p className="text-gray-600">
-            Sign in to continue tracking your baby's precious moments
+            Sign in to continue tracking your baby&apos;s precious moments
           </p>
         </div>
         <SignIn 
