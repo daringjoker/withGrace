@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { currentUser } from '@clerk/nextjs/server';
 import { prisma } from '@/lib/prisma';
+import { ensureUserExists } from '@/lib/auth-utils';
 
 interface RouteParams {
   params: Promise<{ groupId: string }>;
@@ -12,18 +12,19 @@ export async function POST(
   { params }: RouteParams
 ) {
   try {
-    const user = await currentUser();
-    if (!user) {
+    const authResult = await ensureUserExists();
+    if (!authResult) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const { dbUser } = authResult;
     const { groupId } = await params;
 
     // Check if user is a member of this group
     const membership = await prisma.userGroupMember.findUnique({
       where: {
         userId_groupId: {
-          userId: user.id,
+          userId: dbUser.id,
           groupId: groupId,
         },
       },
@@ -37,7 +38,7 @@ export async function POST(
     }
 
     // Check if user is the group owner
-    if (membership.group.ownerId === user.id) {
+    if (membership.group.ownerId === dbUser.id) {
       return NextResponse.json({ 
         error: 'Group owners cannot leave their own group. Please transfer ownership first or delete the group.' 
       }, { status: 400 });
@@ -47,7 +48,7 @@ export async function POST(
     await prisma.userGroupMember.delete({
       where: {
         userId_groupId: {
-          userId: user.id,
+          userId: dbUser.id,
           groupId: groupId,
         },
       },

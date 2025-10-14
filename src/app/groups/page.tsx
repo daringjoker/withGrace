@@ -64,6 +64,44 @@ export default function GroupsPage() {
   const [membersDialog, setMembersDialog] = useState<{ isOpen: boolean; group?: UserGroup; members: GroupMember[] }>({ isOpen: false, members: [] });
   const [editingMember, setEditingMember] = useState<GroupMember | null>(null);
 
+  // Permission presets for different roles
+  const getPermissionsForRole = (role: string) => {
+    switch (role) {
+      case 'viewer':
+        return {
+          canRead: true,
+          canAdd: false,
+          canEdit: false,
+          canDelete: false,
+          canShare: false,
+        };
+      case 'editor':
+        return {
+          canRead: true,
+          canAdd: true,
+          canEdit: true,
+          canDelete: false,
+          canShare: false,
+        };
+      case 'admin':
+        return {
+          canRead: true,
+          canAdd: true,
+          canEdit: true,
+          canDelete: true,
+          canShare: true,
+        };
+      default:
+        return {
+          canRead: true,
+          canAdd: false,
+          canEdit: false,
+          canDelete: false,
+          canShare: false,
+        };
+    }
+  };
+
   useEffect(() => {
     if (user) {
       fetchGroups();
@@ -128,11 +166,14 @@ export default function GroupsPage() {
         const members = await response.json();
         return members;
       } else {
-        console.error('Failed to fetch members');
+        const error = await response.json();
+        console.error('Failed to fetch members:', error.error);
+        alert(`Error: ${error.error}`);
         return [];
       }
     } catch (error) {
       console.error('Error fetching members:', error);
+      alert('Network error while fetching members. Please try again.');
       return [];
     }
   };
@@ -268,20 +309,20 @@ export default function GroupsPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <div className="max-w-4xl mx-auto p-4 sm:p-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 sm:mb-8">
+        <div className="mb-4 sm:mb-0">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
             👨‍👩‍👧‍👦 Family Groups
           </h1>
-          <p className="text-gray-600">
+          <p className="text-sm sm:text-base text-gray-600">
             Manage your family groups and sharing permissions
           </p>
         </div>
         <Button
           onClick={() => setShowCreateForm(true)}
-          className="mt-4 sm:mt-0"
+          className="min-h-[44px] w-full sm:w-auto text-base sm:text-sm"
         >
           <Plus className="w-4 h-4 mr-2" />
           Create New Group
@@ -290,13 +331,13 @@ export default function GroupsPage() {
 
       {/* Create Group Form */}
       {showCreateForm && (
-        <div className="bg-white p-6 rounded-lg border shadow-sm mb-8">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
+        <div className="bg-white p-4 sm:p-6 rounded-lg border shadow-sm mb-6 sm:mb-8">
+          <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">
             Create New Family Group
           </h3>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Group Name *
               </label>
               <Input
@@ -304,10 +345,11 @@ export default function GroupsPage() {
                 placeholder="e.g., The Smith Family"
                 value={newGroup.name}
                 onChange={(e) => setNewGroup({ ...newGroup, name: e.target.value })}
+                className="min-h-[44px] text-base"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Description
               </label>
               <Input
@@ -315,18 +357,21 @@ export default function GroupsPage() {
                 placeholder="Tell us about your family..."
                 value={newGroup.description}
                 onChange={(e) => setNewGroup({ ...newGroup, description: e.target.value })}
+                className="min-h-[44px] text-base"
               />
             </div>
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row gap-3">
               <Button
                 onClick={() => setShowCreateForm(false)}
                 variant="outline"
+                className="min-h-[44px] text-base order-2 sm:order-1"
               >
                 Cancel
               </Button>
               <Button
                 onClick={handleCreateGroup}
                 disabled={!newGroup.name.trim()}
+                className="min-h-[44px] text-base order-1 sm:order-2"
               >
                 Create Group
               </Button>
@@ -351,16 +396,16 @@ export default function GroupsPage() {
           </Button>
         </div>
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           {groups.map((group) => (
             <div
               key={group.id}
-              className="bg-white p-6 rounded-lg border shadow-sm hover:shadow-md transition-shadow"
+              className="bg-white p-4 sm:p-6 rounded-lg border shadow-sm hover:shadow-md transition-shadow"
             >
-              <div className="flex flex-col lg:flex-row lg:items-center justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
-                    <h3 className="text-xl font-semibold text-gray-900">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-3">
+                    <h3 className="text-lg sm:text-xl font-semibold text-gray-900">
                       {group.name}
                     </h3>
                     <div className="flex items-center gap-1">
@@ -372,10 +417,10 @@ export default function GroupsPage() {
                   </div>
                   
                   {group.description && (
-                    <p className="text-gray-600 mb-3">{group.description}</p>
+                    <p className="text-gray-600 mb-3 text-sm sm:text-base">{group.description}</p>
                   )}
                   
-                  <div className="flex items-center gap-6 text-sm text-gray-500">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 text-sm text-gray-500">
                     <div className="flex items-center gap-1">
                       <Users className="w-4 h-4" />
                       <span>{group.stats.memberCount} members</span>
@@ -390,12 +435,13 @@ export default function GroupsPage() {
                   </div>
                 </div>
                 
-                <div className="flex items-center gap-2 mt-4 lg:mt-0">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 mt-2 sm:mt-0">
                   {group.permissions.canShare && (
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => handleShare(group)}
+                      className="min-h-[44px] sm:min-h-[36px] flex-1 sm:flex-none text-sm sm:text-xs"
                     >
                       <Share className="w-4 h-4 mr-1" />
                       Share
@@ -407,6 +453,7 @@ export default function GroupsPage() {
                       variant="outline"
                       size="sm"
                       onClick={() => handleManage(group)}
+                      className="min-h-[44px] sm:min-h-[36px] flex-1 sm:flex-none text-sm sm:text-xs"
                     >
                       <Settings className="w-4 h-4 mr-1" />
                       Manage
@@ -422,14 +469,14 @@ export default function GroupsPage() {
       {/* Share Dialog */}
       {shareDialog.isOpen && shareDialog.group && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full">
+          <div className="bg-white rounded-lg p-4 sm:p-6 max-w-sm sm:max-w-md w-full max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-start mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900 pr-4">
                 Share &quot;{shareDialog.group.name}&quot;
               </h3>
               <button
                 onClick={() => setShareDialog({ isOpen: false })}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-gray-400 hover:text-gray-600 min-h-[44px] min-w-[44px] flex items-center justify-center sm:min-h-auto sm:min-w-auto"
               >
                 ✕
               </button>
@@ -440,17 +487,18 @@ export default function GroupsPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Invite Code
                 </label>
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2">
                   <Input
                     type="text"
                     value={shareDialog.group.id}
                     readOnly
-                    className="flex-1"
+                    className="flex-1 min-h-[44px] text-sm sm:text-base"
                   />
                   <Button
                     onClick={() => copyInviteCode(shareDialog.group!.id)}
                     variant="outline"
                     size="sm"
+                    className="min-h-[44px] sm:min-h-[36px] text-base sm:text-sm"
                   >
                     Copy
                   </Button>
@@ -471,11 +519,11 @@ export default function GroupsPage() {
                 </ol>
               </div>
 
-              <div className="flex gap-3">
+              <div className="flex gap-3 mt-6">
                 <Button
                   onClick={() => setShareDialog({ isOpen: false })}
                   variant="outline"
-                  className="flex-1"
+                  className="flex-1 min-h-[44px] text-base"
                 >
                   Close
                 </Button>
@@ -488,14 +536,14 @@ export default function GroupsPage() {
       {/* Manage Dialog */}
       {manageDialog.isOpen && manageDialog.group && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg p-6 max-w-lg w-full">
+          <div className="bg-white rounded-lg p-4 sm:p-6 max-w-md sm:max-w-lg w-full max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-start mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900 pr-4">
                 Manage &quot;{manageDialog.group.name}&quot;
               </h3>
               <button
                 onClick={() => setManageDialog({ isOpen: false })}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-gray-400 hover:text-gray-600 min-h-[44px] min-w-[44px] flex items-center justify-center sm:min-h-auto sm:min-w-auto"
               >
                 ✕
               </button>
@@ -526,12 +574,12 @@ export default function GroupsPage() {
                 <h4 className="text-sm font-medium text-gray-700 mb-3">
                   Quick Actions
                 </h4>
-                <div className="space-y-2">
+                <div className="space-y-3">
                   <Button
                     onClick={() => handleShare(manageDialog.group!)}
                     variant="outline"
                     size="sm"
-                    className="w-full justify-start"
+                    className="w-full justify-start min-h-[44px] text-base sm:text-sm"
                   >
                     <Share className="w-4 h-4 mr-2" />
                     Share Invite Code
@@ -543,7 +591,7 @@ export default function GroupsPage() {
                       onClick={() => handleSetAsActive(manageDialog.group!)}
                       variant="outline"
                       size="sm"
-                      className="w-full justify-start text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                      className="w-full justify-start min-h-[44px] text-base sm:text-sm text-blue-600 hover:text-blue-700 hover:bg-blue-50"
                     >
                       <Crown className="w-4 h-4 mr-2" />
                       Set as Active Group
@@ -552,7 +600,7 @@ export default function GroupsPage() {
                     <Button
                       variant="outline"
                       size="sm"
-                      className="w-full justify-start bg-blue-50 text-blue-700 cursor-default"
+                      className="w-full justify-start min-h-[44px] text-base sm:text-sm bg-blue-50 text-blue-700 cursor-default"
                       disabled
                     >
                       <Crown className="w-4 h-4 mr-2" />
@@ -564,7 +612,7 @@ export default function GroupsPage() {
                     onClick={() => handleManageMembers(manageDialog.group!)}
                     variant="outline"
                     size="sm"
-                    className="w-full justify-start"
+                    className="w-full justify-start min-h-[44px] text-base sm:text-sm"
                   >
                     <UserPlus className="w-4 h-4 mr-2" />
                     Manage Members
@@ -576,7 +624,7 @@ export default function GroupsPage() {
                       onClick={() => handleLeaveGroup(manageDialog.group!.id, manageDialog.group!.name)}
                       variant="outline"
                       size="sm"
-                      className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
+                      className="w-full justify-start min-h-[44px] text-base sm:text-sm text-red-600 hover:text-red-700 hover:bg-red-50"
                     >
                       <Trash2 className="w-4 h-4 mr-2" />
                       Leave Group
@@ -585,11 +633,11 @@ export default function GroupsPage() {
                 </div>
               </div>
 
-              <div className="flex gap-3">
+              <div className="flex gap-3 mt-6">
                 <Button
                   onClick={() => setManageDialog({ isOpen: false })}
                   variant="outline"
-                  className="flex-1"
+                  className="flex-1 min-h-[44px] text-base"
                 >
                   Close
                 </Button>
@@ -602,23 +650,23 @@ export default function GroupsPage() {
       {/* Members Management Dialog */}
       {membersDialog.isOpen && membersDialog.group && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-lg p-4 sm:p-6 max-w-lg sm:max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-start mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900 pr-4">
                 Manage Members - &quot;{membersDialog.group.name}&quot;
               </h3>
               <button
                 onClick={() => setMembersDialog({ isOpen: false, members: [] })}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-gray-400 hover:text-gray-600 min-h-[44px] min-w-[44px] flex items-center justify-center sm:min-h-auto sm:min-w-auto"
               >
                 ✕
               </button>
             </div>
             
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               {membersDialog.members.map((member) => (
-                <div key={member.id} className="bg-gray-50 rounded-lg p-4">
-                  <div className="flex items-center justify-between">
+                <div key={member.id} className="bg-gray-50 rounded-lg p-3 sm:p-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0">
                     <div className="flex items-center space-x-3">
                       {member.user.imageUrl ? (
                         <img
@@ -647,37 +695,175 @@ export default function GroupsPage() {
                       </div>
                     </div>
                     
-                    <div className="flex items-center space-x-2">
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-0 sm:space-x-2">
                       {editingMember?.id === member.id ? (
-                        <div className="flex items-center space-x-2">
-                          <select
-                            value={editingMember.role}
-                            onChange={(e) => setEditingMember({ ...editingMember, role: e.target.value })}
-                            className="text-sm border rounded px-2 py-1"
-                          >
-                            <option value="viewer">Viewer</option>
-                            <option value="editor">Editor</option>
-                            <option value="admin">Admin</option>
-                          </select>
-                          <Button
-                            onClick={() => handleUpdateMember(
-                              editingMember.id, 
-                              editingMember.role, 
-                              editingMember.permissions
-                            )}
-                            size="sm"
-                            className="text-xs"
-                          >
-                            Save
-                          </Button>
-                          <Button
-                            onClick={() => setEditingMember(null)}
-                            variant="outline"
-                            size="sm"
-                            className="text-xs"
-                          >
-                            Cancel
-                          </Button>
+                        <div className="flex flex-col gap-3 w-full">
+                          {/* Role Selection */}
+                          <div>
+                            <label className="block text-xs font-medium text-gray-700 mb-1">Role</label>
+                            <select
+                              value={editingMember.role}
+                              onChange={(e) => setEditingMember({ 
+                                ...editingMember, 
+                                role: e.target.value,
+                                permissions: getPermissionsForRole(e.target.value)
+                              })}
+                              className="text-sm border rounded px-3 py-2 min-h-[44px] sm:min-h-[32px] w-full"
+                            >
+                              <option value="viewer">Viewer</option>
+                              <option value="editor">Editor</option>
+                              <option value="admin">Admin</option>
+                            </select>
+                            <p className="text-xs text-gray-500 mt-1">
+                              Changing role will reset permissions to defaults. Customize below as needed.
+                            </p>
+                          </div>
+
+                          {/* Quick Presets */}
+                          <div>
+                            <label className="block text-xs font-medium text-gray-700 mb-2">Quick Presets</label>
+                            <div className="flex flex-wrap gap-2">
+                              <button
+                                type="button"
+                                onClick={() => setEditingMember({
+                                  ...editingMember,
+                                  permissions: getPermissionsForRole('viewer')
+                                })}
+                                className="px-3 py-1 text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md transition-colors"
+                              >
+                                👀 View Only
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setEditingMember({
+                                  ...editingMember,
+                                  permissions: getPermissionsForRole('editor')
+                                })}
+                                className="px-3 py-1 text-xs bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-md transition-colors"
+                              >
+                                ✏️ Can Edit
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setEditingMember({
+                                  ...editingMember,
+                                  permissions: getPermissionsForRole('admin')
+                                })}
+                                className="px-3 py-1 text-xs bg-green-100 hover:bg-green-200 text-green-700 rounded-md transition-colors"
+                              >
+                                👑 Full Access
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Individual Permissions */}
+                          <div>
+                            <label className="block text-xs font-medium text-gray-700 mb-2">Custom Permissions</label>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 bg-gray-50 rounded-lg">
+                              <label className="flex items-start space-x-3">
+                                <input
+                                  type="checkbox"
+                                  checked={editingMember.permissions.canRead}
+                                  onChange={(e) => setEditingMember({
+                                    ...editingMember,
+                                    permissions: { ...editingMember.permissions, canRead: e.target.checked }
+                                  })}
+                                  className="mt-0.5 rounded text-blue-600 focus:ring-blue-500"
+                                />
+                                <div>
+                                  <span className="text-sm font-medium text-gray-700">📖 Read</span>
+                                  <p className="text-xs text-gray-500">View baby events and memories</p>
+                                </div>
+                              </label>
+
+                              <label className="flex items-start space-x-3">
+                                <input
+                                  type="checkbox"
+                                  checked={editingMember.permissions.canAdd}
+                                  onChange={(e) => setEditingMember({
+                                    ...editingMember,
+                                    permissions: { ...editingMember.permissions, canAdd: e.target.checked }
+                                  })}
+                                  className="mt-0.5 rounded text-blue-600 focus:ring-blue-500"
+                                />
+                                <div>
+                                  <span className="text-sm font-medium text-gray-700">➕ Add</span>
+                                  <p className="text-xs text-gray-500">Create new baby events</p>
+                                </div>
+                              </label>
+
+                              <label className="flex items-start space-x-3">
+                                <input
+                                  type="checkbox"
+                                  checked={editingMember.permissions.canEdit}
+                                  onChange={(e) => setEditingMember({
+                                    ...editingMember,
+                                    permissions: { ...editingMember.permissions, canEdit: e.target.checked }
+                                  })}
+                                  className="mt-0.5 rounded text-blue-600 focus:ring-blue-500"
+                                />
+                                <div>
+                                  <span className="text-sm font-medium text-gray-700">✏️ Edit</span>
+                                  <p className="text-xs text-gray-500">Modify existing events</p>
+                                </div>
+                              </label>
+
+                              <label className="flex items-start space-x-3">
+                                <input
+                                  type="checkbox"
+                                  checked={editingMember.permissions.canDelete}
+                                  onChange={(e) => setEditingMember({
+                                    ...editingMember,
+                                    permissions: { ...editingMember.permissions, canDelete: e.target.checked }
+                                  })}
+                                  className="mt-0.5 rounded text-blue-600 focus:ring-blue-500"
+                                />
+                                <div>
+                                  <span className="text-sm font-medium text-gray-700">🗑️ Delete</span>
+                                  <p className="text-xs text-gray-500">Remove events permanently</p>
+                                </div>
+                              </label>
+
+                              <label className="flex items-start space-x-3 sm:col-span-2">
+                                <input
+                                  type="checkbox"
+                                  checked={editingMember.permissions.canShare}
+                                  onChange={(e) => setEditingMember({
+                                    ...editingMember,
+                                    permissions: { ...editingMember.permissions, canShare: e.target.checked }
+                                  })}
+                                  className="mt-0.5 rounded text-blue-600 focus:ring-blue-500"
+                                />
+                                <div>
+                                  <span className="text-sm font-medium text-gray-700">👥 Share & Invite</span>
+                                  <p className="text-xs text-gray-500">Invite new members to the group</p>
+                                </div>
+                              </label>
+                            </div>
+                          </div>
+
+                          {/* Action Buttons */}
+                          <div className="flex gap-2">
+                            <Button
+                              onClick={() => handleUpdateMember(
+                                editingMember.id, 
+                                editingMember.role, 
+                                editingMember.permissions
+                              )}
+                              size="sm"
+                              className="text-sm min-h-[44px] sm:min-h-[32px] flex-1"
+                            >
+                              Save
+                            </Button>
+                            <Button
+                              onClick={() => setEditingMember(null)}
+                              variant="outline"
+                              size="sm"
+                              className="text-sm min-h-[44px] sm:min-h-[32px] flex-1"
+                            >
+                              Cancel
+                            </Button>
+                          </div>
                         </div>
                       ) : (
                         <div className="flex items-center space-x-2">
@@ -688,12 +874,12 @@ export default function GroupsPage() {
                           {/* Only show edit/remove for non-owners and if current user has permissions */}
                           {!member.isOwner && (membersDialog.group?.owner.id === user?.id || 
                             membersDialog.group?.permissions.canShare) && (
-                            <>
+                            <div className="flex gap-2 sm:contents">
                               <Button
                                 onClick={() => setEditingMember(member)}
                                 variant="outline"
                                 size="sm"
-                                className="text-xs"
+                                className="text-sm min-h-[44px] sm:min-h-[32px] flex-1 sm:flex-none"
                               >
                                 Edit
                               </Button>
@@ -701,37 +887,37 @@ export default function GroupsPage() {
                                 onClick={() => handleRemoveMember(member.id, member.user.name || 'User')}
                                 variant="outline"
                                 size="sm"
-                                className="text-xs text-red-600 hover:text-red-700 hover:bg-red-50"
+                                className="text-sm min-h-[44px] sm:min-h-[32px] flex-1 sm:flex-none text-red-600 hover:text-red-700 hover:bg-red-50"
                               >
                                 Remove
                               </Button>
-                            </>
+                            </div>
                           )}
                         </div>
                       )}
                     </div>
                   </div>
                   
-                  {/* Permissions display */}
-                  <div className="mt-3 pt-3 border-t border-gray-200">
-                    <p className="text-xs text-gray-500 mb-2">Permissions:</p>
-                    <div className="flex flex-wrap gap-1">
-                      {member.permissions.canRead && (
-                        <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">Read</span>
-                      )}
-                      {member.permissions.canAdd && (
-                        <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">Add</span>
-                      )}
-                      {member.permissions.canEdit && (
-                        <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">Edit</span>
-                      )}
-                      {member.permissions.canDelete && (
-                        <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">Delete</span>
-                      )}
-                      {member.permissions.canShare && (
-                        <span className="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded">Share</span>
-                      )}
-                    </div>
+                                    {/* Permissions display */}
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {member.permissions.canRead && (
+                      <span className="text-xs sm:text-xs bg-green-100 text-green-800 px-2 py-1 rounded">📖 Read</span>
+                    )}
+                    {member.permissions.canAdd && (
+                      <span className="text-xs sm:text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">➕ Add</span>
+                    )}
+                    {member.permissions.canEdit && (
+                      <span className="text-xs sm:text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">✏️ Edit</span>
+                    )}
+                    {member.permissions.canDelete && (
+                      <span className="text-xs sm:text-xs bg-red-100 text-red-800 px-2 py-1 rounded">🗑️ Delete</span>
+                    )}
+                    {member.permissions.canShare && (
+                      <span className="text-xs sm:text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded">👥 Share</span>
+                    )}
+                    {!member.permissions.canRead && !member.permissions.canAdd && !member.permissions.canEdit && !member.permissions.canDelete && !member.permissions.canShare && (
+                      <span className="text-xs sm:text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">🚫 No permissions</span>
+                    )}
                   </div>
                 </div>
               ))}
@@ -743,10 +929,11 @@ export default function GroupsPage() {
               )}
             </div>
 
-            <div className="mt-6 flex justify-end">
+            <div className="mt-6 flex justify-center sm:justify-end">
               <Button
                 onClick={() => setMembersDialog({ isOpen: false, members: [] })}
                 variant="outline"
+                className="min-h-[44px] w-full sm:w-auto text-base"
               >
                 Close
               </Button>

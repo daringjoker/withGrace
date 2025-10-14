@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { currentUser } from '@clerk/nextjs/server';
 import { prisma } from '@/lib/prisma';
+import { ensureUserExists } from '@/lib/auth-utils';
 
 interface RouteParams {
   params: Promise<{ groupId: string }>;
@@ -12,25 +12,44 @@ export async function GET(
   { params }: RouteParams
 ) {
   try {
-    const user = await currentUser();
-    if (!user) {
+    const authResult = await ensureUserExists();
+    if (!authResult) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const { dbUser } = authResult;
     const { groupId } = await params;
+
+    console.log('Fetching members for group:', groupId, 'by user:', dbUser.id, 'clerkId:', dbUser.clerkId);
 
     // Check if user is a member of this group
     const membership = await prisma.userGroupMember.findUnique({
       where: {
         userId_groupId: {
-          userId: user.id,
+          userId: dbUser.id,
           groupId: groupId,
         },
       },
     });
 
+    console.log('Membership found:', !!membership);
+
     if (!membership) {
-      return NextResponse.json({ error: 'Not a member of this group' }, { status: 403 });
+      // Let's also check all memberships for this user for debugging
+      const allMemberships = await prisma.userGroupMember.findMany({
+        where: { userId: dbUser.id },
+        select: { groupId: true, group: { select: { name: true } } }
+      });
+      console.log('All user memberships:', allMemberships);
+      
+      return NextResponse.json({ 
+        error: 'Not a member of this group',
+        debug: {
+          requestedGroupId: groupId,
+          userId: dbUser.id,
+          userMemberships: allMemberships.map((m: any) => ({ groupId: m.groupId, groupName: m.group.name }))
+        }
+      }, { status: 403 });
     }
 
     // Get all group members with user details
@@ -60,7 +79,7 @@ export async function GET(
     });
 
     // Transform the response to include ownership info
-    const membersWithOwnership = members.map(member => ({
+    const membersWithOwnership = members.map((member: any) => ({
       id: member.id,
       userId: member.userId,
       role: member.role,
@@ -92,11 +111,12 @@ export async function PUT(
   { params }: RouteParams
 ) {
   try {
-    const user = await currentUser();
-    if (!user) {
+    const authResult = await ensureUserExists();
+    if (!authResult) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const { dbUser } = authResult;
     const { groupId } = await params;
     const { memberId, role, permissions } = await request.json();
 
@@ -104,7 +124,7 @@ export async function PUT(
     const requestingMember = await prisma.userGroupMember.findUnique({
       where: {
         userId_groupId: {
-          userId: user.id,
+          userId: dbUser.id,
           groupId: groupId,
         },
       },
@@ -117,7 +137,7 @@ export async function PUT(
       return NextResponse.json({ error: 'Not a member of this group' }, { status: 403 });
     }
 
-    const isOwner = requestingMember.group.ownerId === user.id;
+    const isOwner = requestingMember.group.ownerId === dbUser.id;
     const isAdmin = requestingMember.role === 'admin';
 
     if (!isOwner && !isAdmin) {
@@ -167,11 +187,12 @@ export async function DELETE(
   { params }: RouteParams
 ) {
   try {
-    const user = await currentUser();
-    if (!user) {
+    const authResult = await ensureUserExists();
+    if (!authResult) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const { dbUser } = authResult;
     const { groupId } = await params;
     const { memberId } = await request.json();
 
@@ -179,7 +200,7 @@ export async function DELETE(
     const requestingMember = await prisma.userGroupMember.findUnique({
       where: {
         userId_groupId: {
-          userId: user.id,
+          userId: dbUser.id,
           groupId: groupId,
         },
       },
@@ -192,7 +213,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Not a member of this group' }, { status: 403 });
     }
 
-    const isOwner = requestingMember.group.ownerId === user.id;
+    const isOwner = requestingMember.group.ownerId === dbUser.id;
     const isAdmin = requestingMember.role === 'admin';
 
     if (!isOwner && !isAdmin) {

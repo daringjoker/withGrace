@@ -187,14 +187,14 @@ export default function AddEventPage() {
         </div>
 
         {/* Event Type Selection */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 max-w-4xl mx-auto px-4 sm:px-0">
           {eventTypes.map((eventType) => {
             const Icon = eventType.icon;
             return (
               <button
                 key={eventType.type}
                 onClick={() => setSelectedEventType(eventType.type)}
-                className={`p-6 rounded-xl border-2 text-left transition-all hover:scale-105 hover:shadow-lg ${eventType.color}`}
+                className={`p-4 sm:p-6 rounded-xl border-2 text-left transition-all hover:scale-105 hover:shadow-lg min-h-[80px] ${eventType.color}`}
               >
                 <div className="flex items-start space-x-4">
                   <Icon className="w-8 h-8 mt-1" />
@@ -212,13 +212,13 @@ export default function AddEventPage() {
   }
 
   return (
-    <div className="space-y-8 max-w-2xl mx-auto">
+    <div className="space-y-6 sm:space-y-8 max-w-2xl mx-auto px-4 sm:px-0">
       {/* Header with back button */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-4">
         <Button
           variant="outline"
           onClick={() => setSelectedEventType(null)}
-          className="mb-4"
+          className="mb-4 min-h-[44px] text-base"
         >
           ← Back to Choose Moment
         </Button>

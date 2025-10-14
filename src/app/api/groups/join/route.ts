@@ -1,18 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
 import { prisma } from '@/lib/prisma';
+import { ensureUserExists } from '@/lib/auth-utils';
 
 export async function POST(request: NextRequest) {
   try {
-    const { userId } = await auth();
-    
-    if (!userId) {
+    const authResult = await ensureUserExists();
+    if (!authResult) {
       return NextResponse.json(
         { success: false, error: 'Unauthorized' },
         { status: 401 }
       );
     }
 
+    const { dbUser } = authResult;
     const body = await request.json();
     const { inviteCode } = body;
 
@@ -44,42 +44,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Ensure user exists in our database
-    let user = await prisma.user.findUnique({
-      where: { clerkId: userId }
-    });
-
-    if (!user) {
-      // Create user if doesn't exist
-      const userResponse = await fetch(`https://api.clerk.com/v1/users/${userId}`, {
-        headers: {
-          'Authorization': `Bearer ${process.env.CLERK_SECRET_KEY}`,
-        },
-      });
-      
-      if (userResponse.ok) {
-        const clerkUser = await userResponse.json();
-        user = await prisma.user.create({
-          data: {
-            clerkId: userId,
-            email: clerkUser.email_addresses[0]?.email_address || '',
-            name: `${clerkUser.first_name || ''} ${clerkUser.last_name || ''}`.trim() || null,
-            imageUrl: clerkUser.image_url || null,
-          }
-        });
-      } else {
-        return NextResponse.json(
-          { success: false, error: 'Failed to fetch user data' },
-          { status: 500 }
-        );
-      }
-    }
-
     // Check if user is already a member
     const existingMember = await prisma.userGroupMember.findUnique({
       where: {
         userId_groupId: {
-          userId: user.id,
+          userId: dbUser.id,
           groupId: group.id,
         }
       }
@@ -95,7 +64,7 @@ export async function POST(request: NextRequest) {
     // Add user to group with viewer permissions by default
     const membership = await prisma.userGroupMember.create({
       data: {
-        userId: user.id,
+        userId: dbUser.id,
         groupId: group.id,
         role: 'viewer',
         canRead: true,
