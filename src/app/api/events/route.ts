@@ -1,5 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { NextRequest, NextResponse } from 'next/server'
+import { auth } from '@clerk/nextjs/server'
+import { prisma } from '@/lib/prisma'
+import type { BabyEvent } from '@/types/baby-events'
 import { EventType } from '@/types';
 import { ensureUserExists } from '@/lib/auth-utils';
 
@@ -205,9 +207,17 @@ export async function GET(request: NextRequest) {
       select: { groupId: true },
     });
 
-    const accessibleGroupIds = userMemberships.map((m: { groupId: string }) => m.groupId);
+    const accessibleGroups = userMemberships.map((m: { groupId: string }) => m.groupId);
 
-    if (accessibleGroupIds.length === 0) {
+    // Build group filter using consistent logic
+    const filter: { groupId?: string | { in: string[] } } = {};
+    if (groupId && accessibleGroups.includes(groupId)) {
+      filter.groupId = groupId;
+    } else {
+      filter.groupId = { in: accessibleGroups };
+    }
+
+    if (accessibleGroups.length === 0) {
       return NextResponse.json({
         success: true,
         data: {
@@ -220,27 +230,18 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // Build where clause
-    const where: {
-      type?: string;
-      date?: {
-        gte?: Date;
-        lte?: Date;
-      };
-      groupId: {
-        in: string[];
-      } | string;
-    } = {
-      groupId: groupId ? groupId : { in: accessibleGroupIds },
-    };
-    
-    // If specific groupId is requested, check user has access
-    if (groupId && !accessibleGroupIds.includes(groupId)) {
+    // Check access if specific groupId requested
+    if (groupId && !accessibleGroups.includes(groupId)) {
       return NextResponse.json(
         { error: 'You do not have access to this group' },
         { status: 403 }
       );
     }
+
+    // Build where clause
+    const where: any = {
+      ...filter
+    };
     
     if (type) {
       where.type = type;

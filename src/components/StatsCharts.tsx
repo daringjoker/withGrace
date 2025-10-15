@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, LineChart, Line, Tooltip, LabelList } from 'recharts';
+import { useGroup } from '@/contexts/GroupContext';
 
 interface DailyStats {
   date: string;
@@ -19,24 +20,44 @@ interface StatsChartsProps {
 }
 
 export function StatsCharts({ className = "" }: StatsChartsProps) {
+  const { activeGroup } = useGroup();
   const [data, setData] = useState<DailyStats[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    fetchStats();
-  }, []);
+    if (activeGroup?.id) {
+      fetchStats();
+    } else {
+      // No active group, clear data and stop loading
+      setData([]);
+      setIsLoading(false);
+    }
+  }, [activeGroup?.id]);
 
   const fetchStats = async () => {
+    if (!activeGroup?.id) {
+      console.log('No active group, skipping stats fetch');
+      setData([]);
+      setIsLoading(false);
+      return;
+    }
+
     try {
-      const response = await fetch('/api/stats?days=7');
+      console.log('Fetching stats for group:', activeGroup.name);
+      const response = await fetch(`/api/stats?days=7&groupId=${activeGroup.id}`);
       if (response.ok) {
         const result = await response.json();
         if (result.success) {
+          console.log('Stats data received:', result.data.dailyStats);
           setData(result.data.dailyStats);
         }
+      } else {
+        console.error('Failed to fetch stats:', response.status);
+        setData([]);
       }
     } catch (error) {
       console.error('Error fetching stats:', error);
+      setData([]);
     } finally {
       setIsLoading(false);
     }
@@ -75,13 +96,21 @@ export function StatsCharts({ className = "" }: StatsChartsProps) {
   }
 
   if (data.length === 0) {
+    const message = !activeGroup?.id 
+      ? "Please select a group to view weekly patterns 👥"
+      : "📊 Your beautiful patterns will appear here as you track more moments! ✨";
+    
+    const subMessage = !activeGroup?.id
+      ? "Choose a group from your profile menu to see charts"
+      : "Add some events to see your weekly patterns";
+
     return (
       <div className={`bg-white p-4 lg:p-6 rounded-lg shadow-sm border ${className}`}>
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Weekly Overview</h3>
         <div className="text-center py-12">
-          <p className="text-gray-500">📊 Your beautiful patterns will appear here as you track more moments! ✨</p>
+          <p className="text-gray-500">{message}</p>
           <p className="text-sm text-gray-400 mt-1">
-            Add some events to see your weekly patterns
+            {subMessage}
           </p>
         </div>
       </div>

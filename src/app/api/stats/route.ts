@@ -1,15 +1,67 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from 'next/server'
+import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
+import { ensureUserExists } from '@/lib/auth-utils'
 import { startOfDay, endOfDay, subDays, format } from 'date-fns'
 
 export async function GET(request: NextRequest) {
   try {
+    // Ensure user is authenticated
+    const authResult = await ensureUserExists();
+    if (!authResult) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { dbUser } = authResult;
     const { searchParams } = new URL(request.url)
     const days = parseInt(searchParams.get('days') || '7')
+    const groupId = searchParams.get('groupId')
     
     const endDate = new Date()
     const startDate = subDays(endDate, days - 1)
+
+    // Get user's accessible groups (same logic as events API)
+    const userMemberships = await prisma.userGroupMember.findMany({
+      where: {
+        userId: dbUser.id,
+        canRead: true,
+      },
+      select: { groupId: true },
+    });
+
+    const accessibleGroups = userMemberships.map((m: { groupId: string }) => m.groupId);
+
+    if (accessibleGroups.length === 0) {
+      return NextResponse.json({
+        success: true,
+        data: {
+          dailyStats: [],
+          averages: { feedingsPerDay: 0, amountPerDay: 0, diapersPerDay: 0, sleepPerDay: 0 },
+          period: {
+            startDate: format(startDate, 'yyyy-MM-dd'),
+            endDate: format(endDate, 'yyyy-MM-dd'),
+            days,
+          },
+        },
+      });
+    }
+
+    // Check access if specific groupId requested
+    if (groupId && !accessibleGroups.includes(groupId)) {
+      return NextResponse.json(
+        { error: 'You do not have access to this group' },
+        { status: 403 }
+      );
+    }
+
+    // Build group filter using consistent logic (same as events API)
+    const groupFilter: string | { in: string[] } = groupId && accessibleGroups.includes(groupId) 
+      ? groupId 
+      : { in: accessibleGroups };
+
+    // Debug logging (can remove later)
+    console.log('Stats API - Consistent group filter logic - groupId:', groupId, 'filter:', groupFilter);
 
     const events = await prisma.babyEvent.findMany({
       where: {
@@ -17,6 +69,7 @@ export async function GET(request: NextRequest) {
           gte: startOfDay(startDate),
           lte: endOfDay(endDate),
         },
+        groupId: groupFilter,
       },
       include: {
         feedingEvent: true,

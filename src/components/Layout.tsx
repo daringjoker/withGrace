@@ -28,9 +28,10 @@ function UserProfile() {
   console.log('UserProfile render:', {
     isSignedIn,
     userId: user?.id,
-    activeGroup: activeGroup?.name,
+    activeGroupName: activeGroup?.name,
+    activeGroup,
+    userGroups,
     userGroupsCount: safeUserGroups.length,
-    userGroups: safeUserGroups.map(g => ({ id: g.id, name: g.name }))
   });
 
   if (!isSignedIn || !user) {
@@ -79,7 +80,7 @@ function UserProfile() {
       </button>
 
       {showDropdown && (
-        <div className="absolute right-0 mt-2 w-64 bg-white rounded-md shadow-lg py-1 z-50 border">
+        <div className="absolute right-0 mt-2 w-64 sm:w-64 bg-white rounded-md shadow-lg py-1 z-50 border max-w-[calc(100vw-2rem)]">
           <div className="px-4 py-2 text-sm text-gray-700 border-b">
             <div className="font-medium">{user.fullName}</div>
             <div className="text-gray-500">{user.emailAddresses[0]?.emailAddress}</div>
@@ -101,7 +102,7 @@ function UserProfile() {
           )}
           
           {/* Group Switching */}
-          {safeUserGroups.length > 1 && (
+          { (
             <div className="py-1 border-b">
               <div className="px-4 py-1 text-xs font-medium text-gray-500 uppercase tracking-wide">
                 Switch Group
@@ -211,9 +212,13 @@ export function Navigation() {
             )}
           </div>
 
-          {/* Mobile menu button */}
-          {isSignedIn && (
-            <div className="sm:hidden flex items-center">
+          {/* Mobile navigation right side */}
+          <div className="sm:hidden flex items-center space-x-2">
+            {/* User Profile Icon for Mobile */}
+            <UserProfile />
+            
+            {/* Mobile menu button - only show when signed in */}
+            {isSignedIn && (
               <button
                 type="button"
                 className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100"
@@ -226,8 +231,8 @@ export function Navigation() {
                   <Menu className="h-6 w-6" />
                 )}
               </button>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
 

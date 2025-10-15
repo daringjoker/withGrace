@@ -46,7 +46,7 @@ interface RecentEvent {
 export default function Home() {
   const router = useRouter();
   const { user, isLoaded } = useUser();
-  const { activeGroup, userGroups, isLoading: groupsLoading } = useGroup();
+  const { activeGroup, userGroups, isLoading: groupsLoading, switchGroup } = useGroup();
   const [todayStats, setTodayStats] = useState<DailyStats | null>(null);
   const [recentEvents, setRecentEvents] = useState<RecentEvent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -76,10 +76,10 @@ export default function Home() {
   }, [isLoaded, user]);
 
   useEffect(() => {
-    if (hasGroups) {
+    if (hasGroups && activeGroup?.id) {
       fetchDashboardData();
     }
-  }, [hasGroups]);
+  }, [hasGroups, activeGroup?.id]);
 
   const checkUserGroups = async () => {
     try {
@@ -101,8 +101,15 @@ export default function Home() {
 
   const fetchDashboardData = async () => {
     try {
-      // Fetch today's stats
-      const statsRes = await fetch('/api/stats?days=1');
+      // Only fetch data if we have an active group
+      if (!activeGroup?.id) {
+        console.log('No active group, skipping dashboard data fetch');
+        setIsLoading(false);
+        return;
+      }
+
+      // Fetch today's stats for the active group
+      const statsRes = await fetch(`/api/stats?days=1&groupId=${activeGroup.id}`);
       if (statsRes.ok) {
         const statsData = await statsRes.json();
         if (statsData.success && statsData.data.dailyStats.length > 0) {
@@ -110,8 +117,8 @@ export default function Home() {
         }
       }
 
-      // Fetch recent events
-      const eventsRes = await fetch('/api/events?limit=5');
+      // Fetch recent events for the active group
+      const eventsRes = await fetch(`/api/events?limit=5&groupId=${activeGroup.id}`);
       if (eventsRes.ok) {
         const eventsData = await eventsRes.json();
         if (eventsData.success) {
@@ -223,6 +230,94 @@ export default function Home() {
           <div className="text-4xl mb-4">👶</div>
           <div className="text-lg text-gray-600 mb-2">Setting up your baby&apos;s journey...</div>
           <div className="animate-pulse text-sm text-gray-400">Just a moment! ✨</div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show group selection grid when no active group is selected
+  if (hasGroups && !activeGroup?.id && !groupsLoading) {
+    return (
+      <div className="px-4 lg:px-0">
+        <div className="text-center mb-8">
+          <div className="text-4xl mb-4">👥</div>
+          <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-2">
+            Select Your Baby's Group
+          </h1>
+          <p className="text-gray-600 text-sm lg:text-base max-w-2xl mx-auto">
+            Choose which group you'd like to view and track precious moments for ✨
+          </p>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 max-w-6xl mx-auto">
+          {safeUserGroups.map((group) => (
+            <button
+              key={group.id}
+              onClick={() => {
+                console.log('Selecting group:', group.name);
+                setIsLoading(true);
+                switchGroup(group);
+              }}
+              className="bg-white p-6 rounded-lg shadow-sm border hover:shadow-md hover:border-blue-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 text-left group active:scale-95"
+            >
+              <div className="flex items-start justify-between mb-4">
+                <div className="text-2xl">
+                  {group.name.includes('👶') || group.name.includes('🍼') || group.name.includes('💕') 
+                    ? '�' : '🍼'}
+                </div>
+                <div className={`text-xs px-2 py-1 rounded-full ${
+                  group.role === 'owner' 
+                    ? 'bg-purple-100 text-purple-800' 
+                    : group.role === 'admin'
+                    ? 'bg-blue-100 text-blue-800'
+                    : 'bg-green-100 text-green-800'
+                }`}>
+                  {group.role}
+                </div>
+              </div>
+              
+              <h3 className="font-semibold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
+                {group.name}
+              </h3>
+              
+              {group.description && (
+                <p className="text-sm text-gray-600 mb-3 overflow-hidden" style={{
+                  display: '-webkit-box',
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: 'vertical'
+                }}>
+                  {group.description}
+                </p>
+              )}
+              
+              <div className="flex items-center justify-between text-xs text-gray-500 mb-3">
+                <div className="flex items-center">
+                  <Users className="w-3 h-3 mr-1" />
+                  <span>{group.stats.memberCount} member{group.stats.memberCount !== 1 ? 's' : ''}</span>
+                </div>
+                <div>
+                  {group.stats.eventCount} moment{group.stats.eventCount !== 1 ? 's' : ''}
+                </div>
+              </div>
+
+              <div className="text-xs text-gray-400 border-t pt-2 mb-3">
+                Owner: {group.owner.name}
+              </div>
+              
+              <div className="text-xs text-blue-600 font-medium group-hover:text-blue-700">
+                Click to select →
+              </div>
+            </button>
+          ))}
+        </div>
+
+        <div className="text-center mt-8">
+          <Link href="/groups">
+            <Button variant="outline">
+              <Users className="w-4 h-4 mr-2" />
+              Manage Groups
+            </Button>
+          </Link>
         </div>
       </div>
     );

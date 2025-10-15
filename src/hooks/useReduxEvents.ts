@@ -33,13 +33,15 @@ export function useEvents(options: UseEventsOptions = {}) {
       dateTo: filters.dateTo,
       limit: filters.limit || 100,
       offset: filters.offset || 0,
+      groupId: filters.groupId,
     };
   }, [
     filters.type,
     filters.dateFrom, 
     filters.dateTo,
     filters.limit,
-    filters.offset
+    filters.offset,
+    filters.groupId
   ]);
 
   // Use RTK Query for data fetching with caching

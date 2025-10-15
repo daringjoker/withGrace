@@ -708,7 +708,7 @@ export default function GroupsPage() {
                                 role: e.target.value,
                                 permissions: getPermissionsForRole(e.target.value)
                               })}
-                              className="text-sm border rounded px-3 py-2 min-h-[44px] sm:min-h-[32px] w-full"
+                              className="text-sm border border-gray-300 bg-white text-gray-900 rounded px-3 py-2 min-h-[44px] sm:min-h-[32px] w-full -webkit-appearance-none appearance-none"
                             >
                               <option value="viewer">Viewer</option>
                               <option value="editor">Editor</option>

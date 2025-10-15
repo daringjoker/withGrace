@@ -25,8 +25,26 @@ model User {
   
   // Groups created by this user
   ownedGroups UserGroup[] @relation("GroupOwner")
+  
+  // User preferences
+  preferences UserPreferences?
 
   @@map("users")
+}
+
+model UserPreferences {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Active group selection
+  activeGroupId String?
+  activeGroup   UserGroup? @relation(fields: [activeGroupId], references: [id], onDelete: SetNull)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("user_preferences")
 }
 
 model UserGroup {
@@ -46,6 +64,9 @@ model UserGroup {
   
   // Events belonging to this group
   events BabyEvent[]
+  
+  // Users who have this as their active group
+  activeForUsers UserPreferences[]
 
   @@map("user_groups")
 }

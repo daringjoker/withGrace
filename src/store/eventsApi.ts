@@ -14,6 +14,7 @@ export interface EventFilters {
   dateTo?: string;
   limit?: number;
   offset?: number;
+  groupId?: string;
 }
 
 export interface CreateEventData {
