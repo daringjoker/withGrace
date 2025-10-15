@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
 import { ensureUserExists } from '@/lib/auth-utils'
 import { startOfDay, endOfDay, subDays, format } from 'date-fns'

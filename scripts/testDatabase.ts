@@ -102,7 +102,7 @@ async function testDatabase() {
     });
     
     console.log(`\n📊 Recent events:`);
-    events.forEach((event, index) => {
+    events.forEach((event: any, index: number) => {
       console.log(`${index + 1}. ${event.date.toISOString().split('T')[0]} ${event.time} - ${event.type} (ID: ${event.id})`);
       if (event.feedingEvent) {
         console.log(`   └─ Feeding: ${event.feedingEvent.feedingType}, ${event.feedingEvent.duration}min`);

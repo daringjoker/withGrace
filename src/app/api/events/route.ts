@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
 import type { BabyEvent } from '@/types/baby-events'
 import { EventType } from '@/types';

@@ -242,10 +242,10 @@ export default function Home() {
         <div className="text-center mb-8">
           <div className="text-4xl mb-4">👥</div>
           <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-2">
-            Select Your Baby's Group
+            Select Your Baby&apos;s Group
           </h1>
           <p className="text-gray-600 text-sm lg:text-base max-w-2xl mx-auto">
-            Choose which group you'd like to view and track precious moments for ✨
+            Choose which group you&apos;d like to view and track precious moments for ✨
           </p>
         </div>
 

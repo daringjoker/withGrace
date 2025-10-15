@@ -27,7 +27,7 @@ const initialState: CacheState = {
   offlineActions: [],
 };
 
-export const cacheSlice = createSlice({
+const cacheSlice = createSlice({
   name: 'cache',
   initialState,
   reducers: {
@@ -87,4 +87,5 @@ export const {
   setSyncInProgress,
 } = cacheSlice.actions;
 
+export { cacheSlice };
 export default cacheSlice.reducer;
