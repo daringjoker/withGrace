@@ -190,8 +190,8 @@ export const TimelinePath = forwardRef<SVGPathElement, TimelinePathComponentProp
       <path
         ref={ref}
         d={path}
-        stroke="black"
-        strokeWidth="1"
+        stroke="#d1d5db"
+        strokeWidth="5"
         fill="none"
         strokeLinecap="round"
         strokeLinejoin="round"

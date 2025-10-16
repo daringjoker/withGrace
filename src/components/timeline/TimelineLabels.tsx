@@ -192,7 +192,7 @@ export function TimelineLabels({ visibleDays, timelineWidth, pathRef }: Timeline
     return hourMarkers.map((marker, index) => {
       const markerId = `${marker.dayIndex}-${marker.hour}`;
       const isMajorHour = marker.hour === 0 || marker.hour === 6 || marker.hour === 12 || marker.hour === 18;
-      const lineLength = isMajorHour ? 6 : 4;
+      const lineLength = isMajorHour ? 8 : 5.2;
       
       return (
         <g key={markerId}>
@@ -202,7 +202,7 @@ export function TimelineLabels({ visibleDays, timelineWidth, pathRef }: Timeline
             y1={marker.y}
             x2={marker.x + lineLength}
             y2={marker.y}
-            stroke={isMajorHour ? "#444" : "#666"}
+            stroke={isMajorHour ? "#9ca3af" : "#9ca3af"}
             strokeWidth={isMajorHour ? 2 : 1.5}
             style={{ 
               opacity: isMajorHour ? 0.8 : 0.6,
@@ -218,7 +218,7 @@ export function TimelineLabels({ visibleDays, timelineWidth, pathRef }: Timeline
             cx={marker.x}
             cy={marker.y}
             r={isMajorHour ? 2.5 : 2}
-            fill={isMajorHour ? "#444" : "#666"}
+            fill={isMajorHour ? "#9ca3af" : "#9ca3af"}
             style={{ 
               opacity: isMajorHour ? 0.9 : 0.7,
               cursor: 'pointer',
@@ -241,9 +241,9 @@ export function TimelineLabels({ visibleDays, timelineWidth, pathRef }: Timeline
             {/* Label background */}
             <rect
               x={TIMELINE_CONFIG.LABEL_X_POSITION - 4}
-              y={dayData.dayStartY - 30}
-              width={dayData.isToday ? 120 : 80}
-              height="20"
+              y={dayData.dayStartY - 32}
+              width={dayData.isToday ? 140 : 100}
+              height="26"
               rx="6"
               fill={dayData.isToday ? "#3B82F6" : "#1F2937"}
               fillOpacity="0.9"
@@ -256,9 +256,9 @@ export function TimelineLabels({ visibleDays, timelineWidth, pathRef }: Timeline
               x={TIMELINE_CONFIG.LABEL_X_POSITION}
               y={dayData.dayStartY - 17}
               textAnchor="start"
-              className="text-sm font-bold fill-white"
+              className="text-lg font-bold fill-white"
               style={{ 
-                fontSize: '14px',
+                fontSize: '18px',
                 fontWeight: '600',
                 textShadow: '0 1px 2px rgba(0,0,0,0.3)'
               }}
@@ -297,10 +297,10 @@ export function TimelineLabels({ visibleDays, timelineWidth, pathRef }: Timeline
           <g key={`hover-${hoveredHour}`}>
             {/* Label background with enhanced styling */}
             <rect
-              x={labelPos.x + (labelPos.anchor === 'end' ? -42 : 0)}
-              y={marker.y - 15}
-              width="42"
-              height="24"
+              x={labelPos.x + (labelPos.anchor === 'end' ? -50 : 0)}
+              y={marker.y - 16}
+              width="50"
+              height="28"
               rx="6"
               fill={isMajorHour ? "#1E40AF" : "#1F2937"}
               fillOpacity="0.95"
@@ -313,13 +313,13 @@ export function TimelineLabels({ visibleDays, timelineWidth, pathRef }: Timeline
             
             {/* Label text */}
             <text
-              x={labelPos.x + (labelPos.anchor === 'end' ? -21 : 21)}
-              y={marker.y - 2}
+              x={labelPos.x + (labelPos.anchor === 'end' ? -25 : 25)}
+              y={marker.y - 1}
               textAnchor="middle"
               className="fill-white pointer-events-none"
               style={{ 
                 userSelect: 'none',
-                fontSize: '12px',
+                fontSize: '16px',
                 fontWeight: isMajorHour ? '600' : '500',
                 textShadow: '0 1px 2px rgba(0,0,0,0.4)'
               }}
@@ -330,8 +330,8 @@ export function TimelineLabels({ visibleDays, timelineWidth, pathRef }: Timeline
             {/* Indicator triangle */}
             <polygon
               points={labelPos.anchor === 'end' 
-                ? `${labelPos.x - 42},${marker.y - 3} ${labelPos.x - 36},${marker.y} ${labelPos.x - 42},${marker.y + 3}`
-                : `${labelPos.x + 42},${marker.y - 3} ${labelPos.x + 36},${marker.y} ${labelPos.x + 42},${marker.y + 3}`
+                ? `${labelPos.x - 50},${marker.y - 3} ${labelPos.x - 44},${marker.y} ${labelPos.x - 50},${marker.y + 3}`
+                : `${labelPos.x + 50},${marker.y - 3} ${labelPos.x + 44},${marker.y} ${labelPos.x + 50},${marker.y + 3}`
               }
               fill={isMajorHour ? "#1E40AF" : "#1F2937"}
               fillOpacity="0.95"

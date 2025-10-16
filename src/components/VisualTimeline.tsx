@@ -258,6 +258,8 @@ export function VisualTimeline({ events, onEdit, onDelete, isLoading = false }: 
             preserveAspectRatio="xMidYTop meet"
             style={{ maxWidth: '100%', overflow: 'visible' }}
           >
+
+
             {/* Timeline Labels (Day and Hour labels) */}
             <TimelineLabels 
               visibleDays={visibleDays}
@@ -273,6 +275,55 @@ export function VisualTimeline({ events, onEdit, onDelete, isLoading = false }: 
               timelineCenterX={TIMELINE_CENTER_X}
               timelineAmplitude={TIMELINE_AMPLITUDE}
             />
+
+            {/* Day/Night Indicators */}
+            {visibleDays.map((day, dayIndex) => {
+              const dayStartY = dayIndex * (24 * TIMELINE_CONFIG.HOUR_HEIGHT + TIMELINE_CONFIG.DAY_SEPARATOR_HEIGHT);
+              
+              // Responsive sizing based on screen width
+              const isMobile = TIMELINE_WIDTH < 768;
+              const sunScale = isMobile ? 0.6 : 1; // 60% size on mobile
+              const moonScale = isMobile ? 0.5 : 1; // 50% size on mobile
+              
+              // Sun position at 12 PM (noon)
+              const sunY = dayStartY + (12 * TIMELINE_CONFIG.HOUR_HEIGHT);
+              const sunX = TIMELINE_WIDTH * 0.75; // 75% of timeline width
+              
+              // Moon position at 12 AM (midnight) - only render for first occurrence
+              const moonY = dayStartY + (0 * TIMELINE_CONFIG.HOUR_HEIGHT);
+              const moonX = TIMELINE_WIDTH * 0.25; // 25% of timeline width
+              
+              return (
+                <g key={`day-night-${dayIndex}`}>
+                  {/* Sun Icon */}
+                  <g transform={`translate(${sunX}, ${sunY}) scale(${sunScale})`}>
+                    {/* Sun rays */}
+                    <g stroke="#fbbf24" strokeWidth="6" strokeLinecap="round">
+                      <line x1="0" y1="-54" x2="0" y2="-42" />
+                      <line x1="38.1" y1="-38.1" x2="29.7" y2="-29.7" />
+                      <line x1="54" y1="0" x2="42" y2="0" />
+                      <line x1="38.1" y1="38.1" x2="29.7" y2="29.7" />
+                      <line x1="0" y1="54" x2="0" y2="42" />
+                      <line x1="-38.1" y1="38.1" x2="-29.7" y2="29.7" />
+                      <line x1="-54" y1="0" x2="-42" y2="0" />
+                      <line x1="-38.1" y1="-38.1" x2="-29.7" y2="-29.7" />
+                    </g>
+                    {/* Sun center */}
+                    <circle cx="0" cy="0" r="24" fill="#fbbf24" opacity="0.9" />
+                    <circle cx="0" cy="0" r="18" fill="#fcd34d" opacity="0.8" />
+                  </g>
+                  
+                  {/* Moon Icon - only render at the start of each day to avoid overlap */}
+                  <g transform={`translate(${moonX}, ${moonY}) scale(${moonScale})`}>
+                    {/* Moon crescent - single clean circle */}
+                    <circle cx="0" cy="0" r="48" fill="#e5e7eb" opacity="0.9" />
+                    {/* Moon features */}
+                    <circle cx="-12" cy="-12" r="9" fill="#d1d5db" opacity="0.6" />
+                    <circle cx="6" cy="12" r="6" fill="#d1d5db" opacity="0.5" />
+                  </g>
+                </g>
+              );
+            })}
 
             {/* Event Points */}
             <EventPoints

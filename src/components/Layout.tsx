@@ -213,61 +213,14 @@ export function Navigation() {
           </div>
 
           {/* Mobile navigation right side */}
-          <div className="sm:hidden flex items-center space-x-2">
+          <div className="sm:hidden flex items-center">
             {/* User Profile Icon for Mobile */}
             <UserProfile />
-            
-            {/* Mobile menu button - only show when signed in */}
-            {isSignedIn && (
-              <button
-                type="button"
-                className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100"
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              >
-                <span className="sr-only">Open main menu</span>
-                {mobileMenuOpen ? (
-                  <X className="h-6 w-6" />
-                ) : (
-                  <Menu className="h-6 w-6" />
-                )}
-              </button>
-            )}
           </div>
         </div>
       </div>
 
-      {/* Mobile menu */}
-      {isSignedIn && (
-        <div className={cn(
-          "sm:hidden transition-all duration-200 ease-in-out",
-          mobileMenuOpen 
-            ? "max-h-64 opacity-100" 
-            : "max-h-0 opacity-0 overflow-hidden"
-        )}>
-          <div className="px-2 pt-2 pb-3 space-y-1 bg-white border-t">
-            {navigation.map((item) => {
-              const Icon = item.icon;
-              const isActive = isHydrated && pathname === item.href;
-              return (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className={cn(
-                    "flex items-center px-3 py-3 rounded-md text-base font-medium transition-colors",
-                    isActive
-                      ? "bg-blue-100 text-blue-700"
-                      : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-                  )}
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <Icon className="w-5 h-5 mr-3" />
-                  {item.name}
-                </Link>
-              );
-            })}
-          </div>
-        </div>
-      )}
+
     </nav>
   );
 }

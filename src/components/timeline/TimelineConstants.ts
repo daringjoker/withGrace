@@ -9,7 +9,7 @@ export const TIMELINE_CONFIG = {
   WINDOW_MARGIN: 16, // Reduced for mobile
   HOUR_HEIGHT: 60,
   DAY_SEPARATOR_HEIGHT: 40,
-  EVENT_RADIUS: 14, // Slightly smaller for mobile touch
+  EVENT_RADIUS: 20, // Increased for better visibility
   
   // Amplitude configuration
   DESKTOP_AMPLITUDE_DIVISOR: 3,
@@ -18,7 +18,7 @@ export const TIMELINE_CONFIG = {
   MOBILE_MAX_AMPLITUDE: 60, // Reduced to prevent horizontal scroll
   
   // Timeline curve configuration
-  ZERO_CROSSINGS_PER_DAY: 2,
+  ZERO_CROSSINGS_PER_DAY: 1,
   
   // Scroll and loading
   DAYS_BUFFER: 3,
@@ -43,7 +43,7 @@ export const TIMELINE_CONFIG = {
  */
 export const getTimelineWidth = (): number => {
   if (typeof window === 'undefined') return TIMELINE_CONFIG.MAX_TIMELINE_WIDTH;
-  return Math.min(TIMELINE_CONFIG.MAX_TIMELINE_WIDTH, window.innerWidth - TIMELINE_CONFIG.WINDOW_MARGIN);
+  return window.innerWidth - TIMELINE_CONFIG.WINDOW_MARGIN;
 };
 
 /**

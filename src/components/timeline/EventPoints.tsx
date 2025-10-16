@@ -447,7 +447,7 @@ export function EventPoints({
               strokeWidth: 3,
               r: TIMELINE_CONFIG.EVENT_RADIUS + 2,
               iconSymbol: startIcon,
-              iconSize: 14,
+              iconSize: 18,
               useEmoji: true
             };
           }
@@ -464,7 +464,7 @@ export function EventPoints({
               strokeWidth: 2,
               r: TIMELINE_CONFIG.EVENT_RADIUS + 1,
               iconSymbol: endIcon,
-              iconSize: 12,
+              iconSize: 16,
               useEmoji: true
             };
           }
@@ -474,7 +474,7 @@ export function EventPoints({
             strokeWidth: 0,
             r: TIMELINE_CONFIG.EVENT_RADIUS,
             iconSymbol: null,
-            iconSize: 24,
+            iconSize: 30,
             useEmoji: false
           };
         };
@@ -623,14 +623,14 @@ export function EventPoints({
             ) : (
               // Regular event icon
               <foreignObject
-                x={preciseX - 12}
-                y={point.y - 12}
-                width="24"
-                height="24"
+                x={preciseX - 16}
+                y={point.y - 16}
+                width="32"
+                height="32"
                 className="pointer-events-none"
               >
                 <IconComponent 
-                  className="w-6 h-6 text-white" 
+                  className="w-8 h-8 text-white" 
                   style={{ 
                     filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.4))',
                     strokeWidth: '1.5px' 
@@ -641,9 +641,9 @@ export function EventPoints({
 
             {/* Cute labels for all markers */}
             <text
-              x={preciseX + 22}
-              y={point.y - 12}
-              fontSize="9"
+              x={preciseX + (typeof window !== 'undefined' && window.innerWidth >= 768 ? 30 : 22)}
+              y={point.y - (typeof window !== 'undefined' && window.innerWidth >= 768 ? 16 : 12)}
+              fontSize={typeof window !== 'undefined' && window.innerWidth >= 768 ? "16" : "9"}
               fill={color}
               className="pointer-events-none font-semibold"
               style={{ 

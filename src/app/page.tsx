@@ -357,15 +357,6 @@ export default function Home() {
         </p>
       </div>
 
-      {/* Quick Add Button - Mobile sticky */}
-      <div className="lg:hidden fixed bottom-4 right-4 z-50">
-        <Link href="/add">
-          <Button className="w-14 h-14 rounded-full shadow-lg">
-            <Plus className="w-6 h-6" />
-          </Button>
-        </Link>
-      </div>
-
       {/* Quick Stats - Mobile optimized grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-6 px-4 lg:px-0">
         <div className="bg-white p-4 lg:p-6 rounded-lg shadow-sm border">
