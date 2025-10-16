@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { format } from "date-fns";
 import Link from "next/link";
 import { Plus, Milk, Baby, Clock, Edit, Trash2, Users } from "lucide-react";
@@ -68,20 +68,7 @@ export default function Home() {
     hasGroups
   });
 
-  // Check for user groups on initial load
-  useEffect(() => {
-    if (isLoaded && user) {
-      checkUserGroups();
-    }
-  }, [isLoaded, user]);
-
-  useEffect(() => {
-    if (hasGroups && activeGroup?.id) {
-      fetchDashboardData();
-    }
-  }, [hasGroups, activeGroup?.id]);
-
-  const checkUserGroups = async () => {
+  const checkUserGroups = useCallback(async () => {
     try {
       const response = await fetch('/api/groups');
       if (response.ok) {
@@ -97,9 +84,9 @@ export default function Home() {
       console.error('Error checking user groups:', error);
       setHasGroups(false);
     }
-  };
+  }, [router]);
 
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = useCallback(async () => {
     try {
       // Only fetch data if we have an active group
       if (!activeGroup?.id) {
@@ -130,7 +117,7 @@ export default function Home() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [activeGroup?.id]);
 
   const formatTime = (timeStr: string) => {
     return format(new Date(`2000-01-01T${timeStr}`), 'h:mm a');
@@ -221,6 +208,19 @@ export default function Home() {
   const handleDeleteCancel = () => {
     setDeleteDialog({ isOpen: false });
   };
+
+  // Check for user groups on initial load
+  useEffect(() => {
+    if (isLoaded && user) {
+      checkUserGroups();
+    }
+  }, [isLoaded, user, checkUserGroups]);
+
+  useEffect(() => {
+    if (hasGroups && activeGroup?.id) {
+      fetchDashboardData();
+    }
+  }, [hasGroups, activeGroup?.id, fetchDashboardData]);
 
   // Show loading while checking authentication and groups
   if (!isLoaded || hasGroups === null) {

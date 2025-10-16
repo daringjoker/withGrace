@@ -5,7 +5,6 @@ import { Layout } from "@/components/Layout";
 import { ReduxProvider } from "@/components/ReduxProvider";
 import { GroupProvider } from "@/contexts/GroupContext";
 import { ClerkProvider } from "@clerk/nextjs";
-import { dark } from "@clerk/themes";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

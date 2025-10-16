@@ -6,7 +6,7 @@ import { prisma } from '@/lib/prisma';
 console.log('Prisma client loaded:', !!prisma, typeof prisma);
 
 // GET /api/user/preferences - Get user preferences including active group
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const authResult = await ensureUserExists();
     if (!authResult) {

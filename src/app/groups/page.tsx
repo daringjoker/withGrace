@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Users, Plus, Settings, Share, Crown, Eye, Edit, UserPlus, Trash2 } from 'lucide-react';
 import { useGroup } from '@/contexts/GroupContext';
+import Image from 'next/image';
 
 interface UserGroup {
   id: string;
@@ -669,9 +670,11 @@ export default function GroupsPage() {
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0">
                     <div className="flex items-center space-x-3">
                       {member.user.imageUrl ? (
-                        <img
+                        <Image
                           src={member.user.imageUrl}
                           alt={member.user.name || 'User'}
+                          width={40}
+                          height={40}
                           className="w-10 h-10 rounded-full"
                         />
                       ) : (

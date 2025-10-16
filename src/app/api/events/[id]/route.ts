@@ -108,20 +108,16 @@ export async function PUT(
 
     // Create timestamp from date and time if provided separately (from forms)
     let finalTimestamp: Date
-    let shouldUpdateDateTime = false
     
     if (timestamp) {
       finalTimestamp = new Date(timestamp)
-      shouldUpdateDateTime = true
     } else if (date && time) {
       // Create timestamp in local timezone, not UTC
       finalTimestamp = new Date(`${date}T${time}:00`)
-      shouldUpdateDateTime = true
     } else {
       // Preserve existing date and time when editing other fields
       const existingDate = existingEvent.date.toISOString().split('T')[0]
       finalTimestamp = new Date(`${existingDate}T${existingEvent.time}:00`)
-      shouldUpdateDateTime = false
     }
 
     // Validate timestamp
@@ -140,7 +136,7 @@ export async function PUT(
     console.log('UPDATE EVENT - finalTimestamp:', finalTimestamp)
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const updatedEvent = await prisma.$transaction(async (tx: any) => {
+    await prisma.$transaction(async (tx: any) => {
       // Update base event - need to update both date and time fields
       const event = await tx.babyEvent.update({
         where: { id: eventId },

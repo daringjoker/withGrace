@@ -1,9 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback, useEffect } from "react";
-import { isToday, addDays, subDays, startOfDay, format, parseISO } from "date-fns";
-import Image from 'next/image';
-import { Edit, Trash2 } from 'lucide-react';
+import { isToday, addDays, subDays, startOfDay } from "date-fns";
 import { Button } from "@/components/ui/Button";
 import { 
   TIMELINE_CONFIG, 

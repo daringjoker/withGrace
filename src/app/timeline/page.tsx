@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, forwardRef, useMemo } from "react";
+import { useState, useCallback, forwardRef, useMemo } from "react";
 import { format, parseISO, subDays } from "date-fns";
 import { Milk, Baby, Clock, Heart, Calendar, Filter, ChevronDown, Edit, Trash2, Grid3X3, Wifi, WifiOff, Clock as LoadingClock, AlertCircle, Users } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -16,10 +16,9 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-import { BabyEvent } from "@/types/baby-events";
 import { TimelineEvent, convertToTimelineEvents } from "@/utils/eventConversion";
 
-// Sample events for testing
+// Sample events for testing - unused but kept for reference
 const getSampleEvents = () => {
   const today = new Date().toISOString().split('T')[0];
   return [

@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import type { BabyEvent } from '@/types/baby-events'
 import { EventType } from '@/types';
 import { ensureUserExists } from '@/lib/auth-utils';
 
